@@ -6,13 +6,19 @@
   <meta name="color-scheme" content="light">
   <title>Insulin · Infusion reference</title>
   <link rel="stylesheet" href="styles.css">
-  <script src="protocol.js" defer></script><script src="app.js" defer></script>
+  <script src="protocol.js" defer></script><script src="session.js" defer></script><script src="app.js" defer></script>
 </head>
 <body>
 <header class="top"><a class="brand" href="./"><span class="mark" aria-hidden="true">i</span> insulin<span class="brand-note">INFUSION REFERENCE</span></a><span class="pill">Source-specific · Draft</span></header>
 <main>
   <section class="intro"><div><p class="subtitle">Choose where you are in the infusion. Review the applicable instructions from your supplied order.</p></div><div class="target"><span>CONTINUE-RATE GLUCOSE RANGE</span><strong>140–180 <small>mg/dL</small></strong><p>Trend and hold rules still apply.</p></div></section>
   <div class="notice"><strong>Protocol reference — not clinically validated.</strong> Verify against the current patient-specific order and facility policy before use. Unclear instructions produce “Clarify order.”</div>
+  <section id="session-panel" class="session-panel" hidden aria-live="polite">
+    <h2 id="session-title">Current session</h2><p id="session-summary"></p><strong id="due-time"></strong>
+    <p id="storage-note" class="small-note"></p>
+    <button id="reload-session" type="button" class="primary" hidden>Reload latest session</button>
+    <div id="restore-actions" hidden><button type="button" id="restore-session" class="primary">Same patient — review saved session</button><button type="button" id="discard-session" class="text-button">New patient — clear saved session</button></div>
+  </section>
   <div class="layout">
     <section class="card inputs" aria-labelledby="entry-title">
       <div class="section-heading"><span class="step">01</span><h2 id="entry-title">Your infusion check</h2></div>
@@ -23,19 +29,23 @@
           <label><input type="radio" name="mode" value="resume"><span><b>Resume</b><small>After a hold</small></span></label>
         </div></fieldset>
         <p id="mode-help" class="mode-help">Check the starting instructions for a new infusion.</p>
+        <div class="field"><label for="check-time">Glucose check time</label><input id="check-time" type="datetime-local" step="60"></div>
         <div class="field"><label for="bg">Current blood glucose <span>mg/dL</span></label><input id="bg" name="bg" type="number" inputmode="numeric" min="1" step="1" placeholder="Enter current result"><small>Use the measured value. Do not enter HI or LO as a number.</small></div>
         <div class="field"><label for="potassium">Current serum potassium <span>mEq/L</span></label><input id="potassium" name="potassium" type="number" inputmode="decimal" min="0" step="any" placeholder="Enter potassium result"><small>Required before a numerical infusion rate can be shown.</small></div>
+        <label id="potassium-review" class="check" hidden><input id="potassium-reviewed" type="checkbox"><span>I reviewed the potassium result and it is still current.</span></label>
         <div class="field" id="hold-field" hidden><label for="hold">Why was insulin held?</label><select id="hold" name="hold"><option value="">Select the reason</option><option value="glucose">Low glucose only</option><option value="potassium">Low potassium only</option><option value="both">Both glucose and potassium</option><option value="other">Other / uncertain</option></select></div>
         <div class="field" id="rate-field" hidden><label for="rate"><span id="rate-label">Current running rate</span><span>units/hr</span></label><input id="rate" name="rate" type="number" inputmode="decimal" min="0" step="any" placeholder="Enter the actual rate"><small id="rate-help">Read the current rate from the infusion pump.</small></div>
         <div id="previous-fields" hidden><div class="field"><label for="previous">Previous blood glucose <span>mg/dL</span></label><input id="previous" name="previous" type="number" inputmode="numeric" min="1" step="1" placeholder="Enter previous result"></div><label class="check"><input id="hourly" type="checkbox"><span>These are consecutive hourly glucose checks.</span></label></div>
         <button class="primary" type="submit">Review instructions <span aria-hidden="true">→</span></button>
         <button id="clear-entries" class="text-button" type="button">Clear entries / new patient</button>
+        <div id="clear-confirm" hidden><p>Clear all saved checks for this patient?</p><button id="confirm-clear" type="button" class="primary">Yes — start a new patient</button><button id="cancel-clear" type="button" class="text-button">Keep current session</button></div>
       </form>
     </section>
     <aside class="results-column">
       <section class="card result" id="result" aria-live="polite" aria-atomic="true" aria-labelledby="result-title" tabindex="-1"><div class="section-heading"><span class="step">02</span><h2 id="result-title">Your next step</h2></div><div id="result-content"><p class="empty-icon" aria-hidden="true">—</p><h3>Ready when you are.</h3><p>Enter the current results, then review. Your applicable instruction and its reason will appear here.</p></div></section>
     </aside>
   </div>
+  <section id="history-panel" class="card reference" hidden><details><summary>Check history</summary><div class="table-wrap"><table><thead><tr><th>Check time</th><th>Glucose</th><th>Potassium</th><th>Confirmed rate</th></tr></thead><tbody id="history-body"></tbody></table></div></details></section>
   <section class="card reference"><details><summary>View the supplied protocol <span>Rules, rate bands & unresolved cases</span></summary><div class="reference-body">
     <p><strong>Source:</strong> insulin regular infusion order in the image supplied November 5, 2026. This is a transcription of that order, not a complete institutional protocol. The original patient screenshot is not included.</p>
     <h3>Starting and potassium</h3><p>Do not initiate until serum potassium is at least 3.3 mEq/L. Hold if below 3.3; resume when at least 3.3. The order states a starting rate of 4 units/hr, then adjustment per the algorithm. The restart rate after a potassium hold is not specified.</p>
