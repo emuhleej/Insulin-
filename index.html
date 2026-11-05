@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="A focused insulin infusion protocol reference with start, continue and resume workflows.">
+  <meta name="color-scheme" content="light">
+  <title>Insulin · Infusion reference</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="protocol.js" defer></script><script src="app.js" defer></script>
+</head>
+<body>
+<header class="top"><a class="brand" href="./"><span class="mark" aria-hidden="true">i</span> insulin<span class="brand-note">INFUSION REFERENCE</span></a><span class="pill">Source-specific · Draft</span></header>
+<main>
+  <section class="intro"><div><p class="eyebrow">ONE CHECK AT A TIME</p><h1>A clearer next step.</h1><p class="subtitle">Choose where you are in the infusion. Review the applicable instructions from your supplied order.</p></div><div class="target"><span>CONTINUE-RATE GLUCOSE RANGE</span><strong>140–180 <small>mg/dL</small></strong><p>Trend and hold rules still apply.</p></div></section>
+  <div class="notice"><strong>Protocol reference — not clinically validated.</strong> Verify against the current patient-specific order and facility policy before use. Unclear instructions produce “Clarify order.”</div>
+  <div class="layout">
+    <section class="card inputs" aria-labelledby="entry-title">
+      <div class="section-heading"><span class="step">01</span><h2 id="entry-title">Your infusion check</h2></div>
+      <form id="check-form" novalidate autocomplete="off">
+        <fieldset class="mode-set"><legend>What are you doing?</legend><div class="modes">
+          <label><input type="radio" name="mode" value="start" checked><span><b>Start</b><small>New infusion</small></span></label>
+          <label><input type="radio" name="mode" value="continue"><span><b>Continue</b><small>Running now</small></span></label>
+          <label><input type="radio" name="mode" value="resume"><span><b>Resume</b><small>After a hold</small></span></label>
+        </div></fieldset>
+        <p id="mode-help" class="mode-help">Check the starting instructions for a new infusion.</p>
+        <div class="field"><label for="bg">Current blood glucose <span>mg/dL</span></label><input id="bg" name="bg" type="number" inputmode="numeric" min="1" step="1" placeholder="Enter current result"><small>Use the measured value. Do not enter HI or LO as a number.</small></div>
+        <div class="field"><label for="potassium">Current serum potassium <span>mEq/L</span></label><input id="potassium" name="potassium" type="number" inputmode="decimal" min="0" step="any" placeholder="Enter potassium result"><small>Required before a numerical infusion rate can be shown.</small></div>
+        <div class="field" id="hold-field" hidden><label for="hold">Why was insulin held?</label><select id="hold" name="hold"><option value="">Select the reason</option><option value="glucose">Low glucose only</option><option value="potassium">Low potassium only</option><option value="both">Both glucose and potassium</option><option value="other">Other / uncertain</option></select></div>
+        <div class="field" id="rate-field" hidden><label for="rate"><span id="rate-label">Current running rate</span><span>units/hr</span></label><input id="rate" name="rate" type="number" inputmode="decimal" min="0" step="any" placeholder="Enter the actual rate"><small id="rate-help">Read the current rate from the infusion pump.</small></div>
+        <div id="previous-fields" hidden><div class="field"><label for="previous">Previous blood glucose <span>mg/dL</span></label><input id="previous" name="previous" type="number" inputmode="numeric" min="1" step="1" placeholder="Enter previous result"></div><label class="check"><input id="hourly" type="checkbox"><span>These are consecutive hourly glucose checks.</span></label></div>
+        <button class="primary" type="submit">Review instructions <span aria-hidden="true">→</span></button>
+        <button id="clear-entries" class="text-button" type="button">Clear entries / new patient</button>
+      </form>
+    </section>
+    <aside class="results-column">
+      <section class="card result" id="result" aria-live="polite" aria-atomic="true" aria-labelledby="result-title" tabindex="-1"><div class="section-heading"><span class="step">02</span><h2 id="result-title">Your next step</h2></div><div id="result-content"><p class="empty-icon" aria-hidden="true">—</p><h3>Ready when you are.</h3><p>Enter the current results, then review. Your applicable instruction and its reason will appear here.</p></div></section>
+      <section class="note"><h3>Keep the context.</h3><p>Confirm the mode and entered values with every check. A result is cleared as soon as you change an entry.</p><p>This app does not save or transmit entries. Use “Clear entries / new patient” between patients and close the tab when finished.</p></section>
+    </aside>
+  </div>
+  <section class="card reference"><details><summary>View the supplied protocol <span>Rules, rate bands & unresolved cases</span></summary><div class="reference-body">
+    <p><strong>Source:</strong> insulin regular infusion order in the image supplied November 5, 2026. This is a transcription of that order, not a complete institutional protocol. The original patient screenshot is not included.</p>
+    <h3>Starting and potassium</h3><p>Do not initiate until serum potassium is at least 3.3 mEq/L. Hold if below 3.3; resume when at least 3.3. The order states a starting rate of 4 units/hr, then adjustment per the algorithm. The restart rate after a potassium hold is not specified.</p>
+    <h3>During a running infusion</h3><ul><li>Glucose 120–139 mg/dL <strong>or</strong> a decrease greater than 75 mg/dL: decrease by the table amount.</li><li>Glucose decrease of 50–75 mg/dL <strong>or</strong> glucose 140–180 mg/dL: continue the current rate.</li><li>Glucose greater than 180 mg/dL that has not decreased by at least 50 mg/dL: increase by the table amount.</li><li>Glucose 100–119 mg/dL: decrease by 50%.</li></ul>
+    <div class="table-wrap"><table><caption>Increase or decrease amount, when that rule applies</caption><thead><tr><th scope="col">Current rate (units/hr)</th><th scope="col">Change (units/hr)</th></tr></thead><tbody><tr><td>Less than 2</td><td>0.5</td></tr><tr><td>2–9</td><td>1</td></tr><tr><td>10–20</td><td>2</td></tr><tr><td>Greater than 20</td><td>4</td></tr></tbody></table></div>
+    <h3>Low glucose and resuming</h3><p>Below 100 mg/dL: stop insulin. Check glucose hourly until greater than 120 mg/dL, then restart at 50% of the previous rate. Below 70 mg/dL: stop insulin, use the hypoglycemia protocol, and notify the provider. That separate treatment protocol is not supplied here.</p>
+    <h3>Documentation</h3><p>Record the hourly insulin rate with hourly point-of-care glucose checks, even if unchanged. Record 0 units/hr when the infusion is turned off.</p>
+    <h3>When this dashboard asks you to clarify</h3><p>Conflicting adjustment clauses; a rate between 9 and 10 when a table-based adjustment is needed; an unspecified restart reason/rate; starting at glucose 100–139; a nonpositive calculated rate; or checks that are not consecutive hourly readings. No pump rounding is assumed. Verify the calculated precision against your order and pump.</p>
+  </div></details></section>
+  <footer>Insulin reference <span>Built around your supplied order · No patient identifiers</span></footer>
+</main><noscript><p class="notice">JavaScript is required to calculate instructions. The supplied protocol reference remains available above.</p></noscript>
+</body></html>
