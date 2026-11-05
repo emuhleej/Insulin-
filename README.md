@@ -8,7 +8,7 @@ Download the repository and open `index.html` in a modern browser, keeping `styl
 
 ## Check-by-check workflow
 
-Enter glucose and potassium, then review the starting rate. Confirm **Rate applied — next glucose check** after applying and verifying the displayed rate. The next form carries forward the prior glucose and actual confirmed rate. Enter the next reading, review the potassium result, confirm consecutive hourly readings, and review the next instruction. The displayed due time is based on the recorded glucose check time; no background alarm is provided. Below 70 mg/dL, timing defers to the separate hypoglycemia protocol.
+Enter glucose and potassium, then review the starting rate. Confirm **Rate applied — next glucose check** after applying and verifying the displayed rate. The next form carries forward the prior glucose and actual confirmed rate. Enter the next reading, optionally update potassium when a new result is available, confirm consecutive hourly readings, and review the next instruction. Saved potassium is reused automatically and labelled as saved; no repeated potassium confirmation is required. The displayed due time is based on the recorded glucose check time; no background alarm is provided. Below 70 mg/dL, timing defers to the separate hypoglycemia protocol.
 
 Saving a hold keeps the pre-hold rate and reason. Unknown, potassium and combined holds never silently become a glucose-only restart. Clarification results cannot be saved as applied doses. New patient clears the saved history after confirmation.
 

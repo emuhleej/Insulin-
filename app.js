@@ -22,6 +22,14 @@ function setMode(){
   clearResult();
 }
 function add(tag,text,className){const e=document.createElement(tag);e.textContent=text;if(className)e.className=className;content.append(e);return e;}
+function showPotassium(){
+  const hasSaved=typeof session?.potassium==='number'&&session.potassium>0;
+  $('potassium').value=hasSaved?String(session.potassium):'';
+  $('potassium-field').hidden=hasSaved;
+  $('saved-potassium').hidden=!hasSaved;
+  $('cancel-potassium').hidden=true;
+  $('saved-potassium-value').textContent=hasSaved?`Using saved potassium: ${session.potassium} mEq/L`:'';
+}
 function showSession(){
   if(externalChanged)return;
   $('session-panel').hidden=!session;
@@ -43,14 +51,12 @@ function prepareNext(){
   $('bg').value='';$('previous').value=String(session.previous);
   $('rate').value=session.rate===null?'':String(session.rate);
   $('hold').value=session.hold;
-  $('potassium').value=session.potassium===null?'':String(session.potassium);
-  $('potassium-review').hidden=session.potassium===null;
-  $('potassium-reviewed').checked=false;
+  showPotassium();
   $('check-time').value='';timeEdited=false;
   form.querySelector('.mode-set').disabled=true;
   $('hold').disabled=true;
   $('previous').readOnly=true;
-  $('mode-help').textContent=session.mode==='continue'?'Enter the new glucose. Review the carried-forward pump rate and potassium.':session.mode==='resume'?'Enter the new glucose to reassess the hold. The pre-hold rate is retained.':'The infusion has not started. Enter the next glucose to reassess.';
+  $('mode-help').textContent=session.mode==='continue'?'Enter the new glucose and review the running rate. Update potassium only if you have a new result.':session.mode==='resume'?'Enter the new glucose to reassess the hold. The pre-hold rate is retained.':'The infusion has not started. Enter the next glucose to reassess.';
   showSession();$('bg').focus();
 }
 function invalidateExternal(){
@@ -72,21 +78,19 @@ function newPatient(){
   try{localStorage.removeItem(storageKey);storageValue=null;}catch{storageAvailable=false;}
   session=null;savedPending=null;form.hidden=false;form.reset();
   form.querySelector('.mode-set').disabled=false;$('hold').disabled=false;$('previous').readOnly=false;
-  $('restore-actions').hidden=true;$('potassium-review').hidden=true;$('clear-confirm').hidden=true;
+  $('restore-actions').hidden=true;$('clear-confirm').hidden=true;showPotassium();
   setMode();$('check-time').value='';timeEdited=false;showSession();$('bg').focus();
 }
 form.addEventListener('input',event=>{
   clearResult();
   if(event.target.id==='check-time')timeEdited=true;
   if(event.target.id==='bg'&&!timeEdited)$('check-time').value=localTime();
-  if(event.target.id==='potassium'){$('potassium-review').hidden=true;$('potassium-reviewed').checked=false;}
 });
 form.addEventListener('change',event=>{clearResult();if(event.target.name==='mode')setMode();});
 form.addEventListener('submit',event=>{
   event.preventDefault();
   try{checkStorage();}catch{return;}
   const input={mode:mode(),bg:$('bg').value,potassium:$('potassium').value,previous:$('previous').value,rate:$('rate').value,hold:$('hold').value,hourly:$('hourly').checked};
-  if(!$('potassium-review').hidden&&!$('potassium-reviewed').checked)input.potassium='';
   const r=InsulinProtocol.evaluate(input);
   content.replaceChildren();result.dataset.kind=r.kind;
   add('span',r.kind==='rate'?'ORDER-BASED CALCULATION':r.kind==='invalid'?'INPUT NEEDED':r.kind==='clarify'?'NO DOSE CALCULATED':'HOLD / STOP INSTRUCTION','status');
@@ -95,7 +99,7 @@ form.addEventListener('submit',event=>{
   add('p',r.reason);
   add('p',r.next,'next');
   if(r.kind==='rate')add('p','Verify this result against the active order. Confirm pump precision; this reference does not round or convert to mL/hr.');
-  const parts=[input.mode.toUpperCase(),`Glucose: ${input.bg||'missing'} mg/dL`,`K: ${input.potassium||'missing'} mEq/L`];
+  const parts=[input.mode.toUpperCase(),`Glucose: ${input.bg||'missing'} mg/dL`,`K: ${input.potassium||'missing'} mEq/L${$('saved-potassium').hidden?'':' (saved)'}`];
   if(input.mode==='continue')parts.push(`Previous glucose: ${input.previous||'missing'} mg/dL`,`Running rate: ${input.rate||'missing'} units/hr`);
   if(input.mode==='resume')parts.push(`Hold: ${$('hold').selectedOptions[0].textContent}`,`Pre-hold rate: ${input.rate||'missing'} units/hr`);
   add('p',parts.join(' · '),'snapshot');
@@ -118,6 +122,11 @@ form.addEventListener('submit',event=>{
   result.scrollIntoView({behavior:'auto',block:'nearest'});
 });
 $('clear-entries').addEventListener('click',()=>{if(session)$('clear-confirm').hidden=false;else newPatient();});
+$('update-potassium').addEventListener('click',()=>{
+  clearResult();$('saved-potassium').hidden=true;$('potassium-field').hidden=false;$('cancel-potassium').hidden=false;
+  $('potassium').value='';$('potassium').focus();
+});
+$('cancel-potassium').addEventListener('click',()=>{showPotassium();clearResult();});
 $('confirm-clear').addEventListener('click',newPatient);
 $('cancel-clear').addEventListener('click',()=>{$('clear-confirm').hidden=true;});
 $('discard-session').addEventListener('click',newPatient);
